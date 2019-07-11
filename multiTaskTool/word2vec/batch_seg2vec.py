@@ -3,6 +3,7 @@ import os
 import time
 import logging
 from tqdm import tqdm
+import jieba
 import gc
 WORK_PATH = 'model/'
 
@@ -14,7 +15,6 @@ class Word2VecTrainingMaster():
         self.word2vec_model = self.make_word2vec_model(num_features, min_word_count, context,workers)
         self.files=os.listdir(corpus_path)
         print("reader load down")
-        logging.info("reader load down")
         self.base_name=base_name
         self.word2vec_model.save(self.work_path + '/' + self.base_name)
         self.step_save = step_save
@@ -30,8 +30,8 @@ class Word2VecTrainingMaster():
                 start=time.time()
                 with open(self.corpus_path+f,'r',encoding='utf-8') as m:
                     print("read {}".format(f))
-                    logging.info("read {}".format(f))
-                    lines=[line.strip().split() for line in m.readlines()]
+                    lines=[line.strip() for line in m.readlines()]
+                lines=list(map(lambda x:list(jieba.cut(x)),lines))
                 end=time.time()
                 print("take {} s".format(int(end-start)))
                 for batch_index in tqdm(range(0,len(lines),self.batch_size)):
@@ -60,5 +60,4 @@ if __name__ == '__main__':
     w2v.train()
     end=time.time()
     print("take {} s".format(int(end-start)))
-    logging.info("take {} s".format(int(end-start)))
 
